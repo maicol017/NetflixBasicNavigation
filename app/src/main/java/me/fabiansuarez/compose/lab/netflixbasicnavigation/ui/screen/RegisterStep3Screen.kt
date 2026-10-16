@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -14,26 +15,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import me.fabiansuarez.compose.lab.netflixbasicnavigation.data.models.PaymentMethod
 import me.fabiansuarez.compose.lab.netflixbasicnavigation.ui.theme.*
 
-
-
-// ─── RegisterStep3Screen - Configurar pago ────────────────────────────────────
-@Preview(
-    name = "Register Step 3 - PSE",
-    showBackground = true,
-)
 @Composable
-fun RegisterStep3Screen() {
+fun RegisterStep3Screen(navController: NavController) {
     val scrollState = rememberScrollState()
     var selectedPayment by remember { mutableStateOf(PaymentMethod.CARD) }
 
@@ -57,7 +53,7 @@ fun RegisterStep3Screen() {
 
             // ── Top Bar ──────────────────────────────────────────────────────
             RegisterTopBar(
-                onBackClick = { },
+                onBackClick = { navController.popBackStack() },
                 step = 3,
                 totalSteps = 3
             )
@@ -106,7 +102,7 @@ fun RegisterStep3Screen() {
                 SelectedPlanSummary(
                     planName = "Premium",
                     price = "33.908",
-                    onChangePlan = {}
+                    onChangePlan = { navController.popBackStack() } // vuelve al paso 2
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -155,9 +151,14 @@ fun RegisterStep3Screen() {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // ── Start membership button ──────────────────────────────────
+                // ── Start membership button → HOME ───────────────────────────
                 Button(
-                    onClick = {},
+                    onClick = {
+                        navController.navigate("home") {
+                            // Limpia todo el flujo de registro y login de la pila
+                            popUpTo("login") { inclusive = true }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp),
@@ -177,7 +178,7 @@ fun RegisterStep3Screen() {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Al hacer clic en 'Iniciar membresía', aceptas nuestros Términos de uso y confirmas que eres mayor de edad. Netflix se renovará automáticamente en $ 37-908 hasta que canceles.",
+                    text = "Al hacer clic en 'Iniciar membresía', aceptas nuestros Términos de uso y confirmas que eres mayor de edad. Netflix se renovará automáticamente en \$ 33.908 hasta que canceles.",
                     color = Color(0xFF666666),
                     fontSize = 11.sp,
                     textAlign = TextAlign.Center,
@@ -202,6 +203,16 @@ fun RegisterStep3Screen() {
             }
         }
     }
+}
+
+// ─── Preview ──────────────────────────────────────────────────────────────────
+@Preview(
+    name = "Register Step 3 - PSE",
+    showBackground = true,
+)
+@Composable
+private fun RegisterStep3ScreenPreview() {
+    RegisterStep3Screen(navController = rememberNavController())
 }
 
 // ─── Selected Plan Summary ────────────────────────────────────────────────────
@@ -323,9 +334,77 @@ fun CreditCardForm(
 
     Spacer(modifier = Modifier.height(20.dp))
 
+    Column(modifier = Modifier.fillMaxWidth()) {
+        NetflixTextField(
+            value = cardNumber,
+            onValueChange = { input ->
+                onCardNumberChange(input.filter { it.isDigit() }.take(16))
+            },
+            label = "Número de tarjeta",
+            keyboardType = KeyboardType.Number
+        )
 
+        Spacer(modifier = Modifier.height(12.dp))
 
+        NetflixTextField(
+            value = cardName,
+            onValueChange = onCardNameChange,
+            label = "Nombre del titular",
+            keyboardType = KeyboardType.Text
+        )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
+                NetflixTextField(
+                    value = cardExpiry,
+                    onValueChange = { onCardExpiryChange(it.take(5)) },
+                    label = "MM/AA",
+                    keyboardType = KeyboardType.Text
+                )
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                NetflixTextField(
+                    value = cardCvv,
+                    onValueChange = { input ->
+                        onCardCvvChange(input.filter { it.isDigit() }.take(4))
+                    },
+                    label = "CVV",
+                    keyboardType = KeyboardType.Number
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onSaveCardChange(!saveCard) },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = saveCard,
+                onCheckedChange = onSaveCardChange,
+                colors = CheckboxDefaults.colors(
+                    checkedColor = NetflixWhite,
+                    uncheckedColor = NetflixGray,
+                    checkmarkColor = NetflixBlack
+                ),
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = "Guardar tarjeta para futuros pagos",
+                color = NetflixHint,
+                fontSize = 13.sp
+            )
+        }
+    }
 }
 
 // ─── Visual Credit Card ───────────────────────────────────────────────────────
@@ -347,7 +426,7 @@ fun CreditCardVisual(
             .height(180.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(
-                androidx.compose.ui.graphics.Brush.linearGradient(
+                Brush.linearGradient(
                     colors = listOf(Color(0xFF1A237E), Color(0xFF6A1B9A))
                 )
             )
@@ -620,10 +699,7 @@ fun EfectyInfo() {
                 Box(
                     modifier = Modifier
                         .size(22.dp)
-                        .background(
-                            Color(0xFF2A2A2A),
-                            androidx.compose.foundation.shape.CircleShape
-                        ),
+                        .background(Color(0xFF2A2A2A), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -772,4 +848,3 @@ fun PaymentLogosRow() {
         }
     }
 }
-

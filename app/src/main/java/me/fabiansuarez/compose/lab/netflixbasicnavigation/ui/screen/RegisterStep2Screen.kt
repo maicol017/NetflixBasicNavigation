@@ -9,7 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,17 +23,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import me.fabiansuarez.compose.lab.netflixbasicnavigation.data.models.NetflixPlan
 import me.fabiansuarez.compose.lab.netflixbasicnavigation.data.netflixPlans
 import me.fabiansuarez.compose.lab.netflixbasicnavigation.ui.theme.*
 
-@Preview(
-    name = "Netflix Register Step 2 - Elige tu plan",
-    showBackground = true,
-    showSystemUi = true
-)
 @Composable
-fun RegisterStep2Screen() {
+fun RegisterStep2Screen(navController: NavController) {
     val scrollState = rememberScrollState()
     var selectedPlan by remember { mutableStateOf(3) } // Premium selected by default
 
@@ -50,7 +47,7 @@ fun RegisterStep2Screen() {
 
             // ── Top Bar ──────────────────────────────────────────────────────
             RegisterTopBar(
-                onBackClick = {},
+                onBackClick = { navController.popBackStack() },
                 step = 2,
                 totalSteps = 3
             )
@@ -106,9 +103,9 @@ fun RegisterStep2Screen() {
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                // ── Continue button ──────────────────────────────────────────
+                // ── Continue button → REGISTER STEP 3 ────────────────────────
                 Button(
-                    onClick = { },
+                    onClick = { navController.navigate("register_step3") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
@@ -148,6 +145,17 @@ fun RegisterStep2Screen() {
             }
         }
     }
+}
+
+// ─── Preview ──────────────────────────────────────────────────────────────────
+@Preview(
+    name = "Netflix Register Step 2 - Elige tu plan",
+    showBackground = true,
+    showSystemUi = true
+)
+@Composable
+private fun RegisterStep2ScreenPreview() {
+    RegisterStep2Screen(navController = rememberNavController())
 }
 
 // ─── Plan Benefit Row ────────────────────────────────────────────────────────
@@ -302,7 +310,7 @@ fun RegisterTopBar(
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Volver",
                 tint = NetflixWhite,
                 modifier = Modifier.size(24.dp)

@@ -1,6 +1,5 @@
 package me.fabiansuarez.compose.lab.netflixbasicnavigation.ui.screen
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,14 +7,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,17 +21,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import me.fabiansuarez.compose.lab.netflixbasicnavigation.ui.theme.*
 
 // ─── RegisterScreen ───────────────────────────────────────────────────────────
-@Preview(
-    name = "Netflix Register Screen",
-    showBackground = true,
-    showSystemUi = true
-)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(navController: NavController) {
     val scrollState = rememberScrollState()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -62,13 +56,13 @@ fun RegisterScreen() {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 14.dp)
             ) {
-                // Back arrow
+                // Back arrow → vuelve a la pantalla anterior (login)
                 IconButton(
-                    onClick = {},
+                    onClick = { navController.popBackStack() },
                     modifier = Modifier.align(Alignment.CenterStart)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Volver",
                         tint = NetflixWhite,
                         modifier = Modifier.size(24.dp)
@@ -102,7 +96,7 @@ fun RegisterScreen() {
             ) {
                 // ── Step label ───────────────────────────────────────────────
                 Text(
-                    text = "PASO ${currentStep} DE 3",
+                    text = "PASO $currentStep DE 3",
                     color = NetflixHint,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
@@ -200,9 +194,9 @@ fun RegisterScreen() {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // ── Continue button ──────────────────────────────────────────
+                // ── Continue button → REGISTER STEP 2 ────────────────────────
                 Button(
-                    onClick = { },
+                    onClick = { navController.navigate("register_step2") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
@@ -221,7 +215,7 @@ fun RegisterScreen() {
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // ── Already have account ─────────────────────────────────────
+                // ── Already have account → LOGIN ─────────────────────────────
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -236,7 +230,9 @@ fun RegisterScreen() {
                         color = NetflixWhite,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        modifier = Modifier.clickable { }
+                        modifier = Modifier.clickable {
+                            navController.popBackStack()
+                        }
                     )
                 }
 
@@ -264,6 +260,17 @@ fun RegisterScreen() {
             }
         }
     }
+}
+
+// ─── Preview ──────────────────────────────────────────────────────────────────
+@Preview(
+    name = "Netflix Register Screen",
+    showBackground = true,
+    showSystemUi = true
+)
+@Composable
+private fun RegisterScreenPreview() {
+    RegisterScreen(navController = rememberNavController())
 }
 
 // ─── Step Progress ────────────────────────────────────────────────────────────
@@ -340,4 +347,3 @@ fun PasswordRequirementsCard() {
         }
     }
 }
-
